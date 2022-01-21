@@ -1,11 +1,25 @@
-import './App.css';
-import {useState, useEffect} from 'react';
+import './Autocomplete.css';
+import {useState, useEffect, useRef} from 'react';
 
-function App(props) {
+function Autocomplete(props) {
   const [tagList, setTagList] = useState([]);
   const [autocomplete, setAutocomplete] = useState([]);
   const [selectedTags, setSelectedTags] = useState([]);
   const [tag, setTag] = useState("");
+  const wrapperRef = useRef();
+
+  useEffect(() => {
+    focusSearch();
+    setTagList(sortList(props.array));
+
+    document.addEventListener('click', event => {
+      const {current: wrap} = wrapperRef;
+      if(wrap && !wrap.contains(event.target)) {
+        hideAutocomplete(); 
+        setAutocomplete([]);
+      }
+    });
+  }, [])
 
   //REMOVES DUPLICATES AND SORTS AN ARRAY OF TAGS
   const sortList = (list, value) => {
@@ -28,29 +42,13 @@ function App(props) {
     if(autocompleteClassList.contains('hiden')) autocompleteClassList.remove('hiden');
   }
 
-  useEffect(() => {
-    focusSearch();
-    setTagList(sortList(props.array));
-  }, [])
-
-  useEffect(() => {
-    document.addEventListener('click', hideAutocomplete);
-  }, [])
-
-  const handleChange = inputValue => {
-    unhideAutocomplete();
-    setTag(inputValue);
-    setAutocomplete(tagList.filter(item => item.startsWith(inputValue)));
-  }
-
-
   const selectTag = value => {
-    hideAutocomplete();
     setSelectedTags(sortList(selectedTags, value));
     setTagList(sortList(tagList, value || tag));
     setTag('');
     setAutocomplete([]);
     focusSearch();
+    // hideAutocomplete();
   }
 
   const deleteTag = tag => {
@@ -60,6 +58,12 @@ function App(props) {
   const clearTags = () => {
     setSelectedTags([]);
     focusSearch();
+  }
+
+  const handleChange = inputValue => {
+    unhideAutocomplete();
+    setTag(inputValue);
+    setAutocomplete(tagList.filter(item => item.startsWith(inputValue)));
   }
 
   const handleKeyDown = event => {
@@ -86,7 +90,7 @@ function App(props) {
 
   return (
     <div className="App">
-      <header className="app-header">
+      <header className="autocomplete" ref={wrapperRef}>
         <h2>Autocomplete Component</h2>
         <div className="tags-panel">
           <div className="tags-container">
@@ -104,7 +108,7 @@ function App(props) {
           onKeyDown={e => handleKeyDown(e)} 
           onFocus={() => unhideAutocomplete()}
         />
-        <div className="box" >
+        <ul className="box" >
           {autocomplete.map(item => 
             <li className="item" tabIndex="0" key={item} 
               onClick={e => {selectTag(e.target.textContent);}} 
@@ -114,10 +118,10 @@ function App(props) {
               {item}
             </li>
           )}
-        </div>
+        </ul>
       </header>
     </div>
   );
 }
 
-export default App;
+export default Autocomplete;
