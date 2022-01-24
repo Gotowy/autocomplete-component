@@ -4,8 +4,8 @@ The component enables to search, choose and add elements to an uploaded list of 
 
 ## Built with:
 
-HTML & CSS
-JavaScript
+HTML & CSS  
+JavaScript  
 React (Hooks)
 
 ## Functionality:
